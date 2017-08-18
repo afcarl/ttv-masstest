@@ -5,6 +5,7 @@ import driver
 import ttvfast
 import scipy.stats
 import copy
+import numpy as np
 
 class TTVState(object):
     def __init__(self, stel_m_planets, ttvfast_settings):
@@ -41,30 +42,38 @@ class TTVState(object):
         results = ttvfast.ttvfast(planets, stellar_mass, self.Time, self.dt, self.Total)
         #prep results
         integer_indices, epochs, times, rsky, vsky = results["positions"]
-        ttimes = times[:375]
-        tinteger_indices = integer_indices[:375]
         t1_times = []
         t2_times = []
-        for i in range(375):
-            if(tinteger_indices[i]==0):
-                t1_times.append(ttimes[i])
+        count = 0
+        for i in range(len(times)):
+            if(integer_indices[i]==0):
+                if( not np.isclose(times[i],-2.0)):
+                    t1_times.append(times[i])
+                    count +=1
+                else:
+                    break
             else:
-                t2_times.append(ttimes[i])
+                t2_times.append(times[i])
+        if(count != len(obs.times)):
+            print count
+            print len(obs.times)
+            print "Number of transits did not match, logp=inf."
+            return np.inf
         #calc chi2
         chi2 = 0.
         fac = len(t1_times)
         for i in range(len(t1_times)):
-            print t1_times[i]
-            print obs.times[i]
-            print obs.errors[i]
-            print "one chi2 point.."
-            chi2 += (t1_times[i] - obs.times[i])**2. * 1./(obs.errors[i])**2. * fac
+            chi2 += (t1_times[i] - obs.times[i])**2. * 1./(obs.errors[i])**2.
         return chi2
 
     def get_params(self):
-        return self.stel_m_planets
+        params = np.copy(self.stel_m_planets)
+        return params
         
     def set_params(self, stel_m_planets):
+        self.logp = None
+        if len(stel_m_planets)!=self.Nvars:
+            raise AttributeError("vector has wrong length")
         self.stel_m_planets = stel_m_planets
     
     #Will need to modify this...
@@ -73,7 +82,7 @@ class TTVState(object):
 
     def priorHard(self):
         for i in enumerate(self.stel_m_planets):
-            if (self.stel_m_planets[2] <= 0.00001) :
+            if (self.stel_m_planets[0] <= 0.0000001) :
                 print "Invalid state was proposed (m1)"
                 return True
         return False
