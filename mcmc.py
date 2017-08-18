@@ -74,11 +74,7 @@ class Ensemble(Mcmc):
     Sets the scales for the initial random distribution of walkers. Mileage may vary.
     '''
     def set_scales(self, scales):
-        self.scales = np.ones(self.state.Nvars)
-        keys = self.state.get_rawkeys()
-        for i,k in enumerate(keys):
-            if k in scales:
-                self.scales[i] = scales[k]
+        self.scales = scales
 
 '''
 Metropolis-Hastings MCMC coupled with rebound.

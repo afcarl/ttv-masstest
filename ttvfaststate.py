@@ -16,7 +16,7 @@ class TTVState(object):
         self.n_plan = ttvfast_settings[3]
         self.input_flags = ttvfast_settings[4]
         self.logp = None
-        self.Nvars = 14+1
+        self.Nvars = 14
         
     def get_logp(self, obs):
         if (self.priorHard()):
@@ -30,9 +30,12 @@ class TTVState(object):
     def get_chi2(self, obs):
         #split and prep data for ttvfast
         params = self.stel_m_planets
-        planet1 = ttvfast.models.Planet(*params[1:1 + 7])
-        planet2 = ttvfast.models.Planet(*params[1 + 7:])
-        stellar_mass = params[0]
+        #planet1 = ttvfast.models.Planet(*params[1:1 + 7])
+        planet1 = ttvfast.models.Planet(*params[:7])
+        #planet2 = ttvfast.models.Planet(*params[1 + 7:])
+        planet2 = ttvfast.models.Planet(*params[7:])
+        #stellar_mass = params[0]
+        stellar_mass = 0.95573417954
         planets = [planet1, planet2]            
         #get results...
         results = ttvfast.ttvfast(planets, stellar_mass, self.Time, self.dt, self.Total)
@@ -51,6 +54,10 @@ class TTVState(object):
         chi2 = 0.
         fac = len(t1_times)
         for i in range(len(t1_times)):
+            print t1_times[i]
+            print obs.times[i]
+            print obs.errors[i]
+            print "one chi2 point.."
             chi2 += (t1_times[i] - obs.times[i])**2. * 1./(obs.errors[i])**2. * fac
         return chi2
 

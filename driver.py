@@ -100,10 +100,10 @@ def run_mh(label, Niter, true_state, obs, scal, step, printing_every=400):
 def run_emcee(label, Niter, true_state, obs, Nwalkers, scal, a=2, printing_every=400):
     ens = mcmc.Ensemble(true_state,obs,scales=scal,nwalkers=Nwalkers, a=a)
     h = hashlib.md5()
-    h.update(str(true_state.planets))
+    #h.update(str(true_state.planets))
     h.update(label)
     hyperparams = {'scale':scal, 'walkers':Nwalkers, 'a':a}
-    save_aux_before_run(label, true_state, Niter, hyperparams, h)
+    #save_aux_before_run(label, true_state, Niter, hyperparams, h)
     listchain = np.zeros((Nwalkers,ens.state.Nvars,0))
     listchainlogp = np.zeros((Nwalkers,0))
     collchain = np.zeros((0,ens.state.Nvars))
@@ -346,7 +346,7 @@ def plot_chains(bundle, size, name='Name_left_empty', save=False):
     mcmc, chain, chainlogp = bundle.mcmc, bundle.mcmc_chain, bundle.mcmc_chainlogp
     for i in range(mcmc.state.Nvars):
         ax = plt.subplot(mcmc.state.Nvars+1,1,1+i)
-        ax.set_ylabel(mcmc.state.get_keys()[i])
+        #ax.set_ylabel(mcmc.state.get_keys()[i])
         ax.tick_params(axis='x', labelbottom='off')
         ax.yaxis.label.set_size(28)
         ax.tick_params(axis='both', labelsize=18)
